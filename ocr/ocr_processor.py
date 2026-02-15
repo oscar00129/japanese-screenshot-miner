@@ -21,7 +21,8 @@ class OCRProcessor:
             return "[TESSERACT NOT INSTALLED]"
     
     def apply_grayscale(self, image) -> Image:
-        return ImageOps.grayscale(image)
+        gray = ImageOps.grayscale(image)
+        return gray.point(lambda x: 0 if x < 160 else 255, '1')
 
     def format_text(self, text) -> str:
         return re.sub(r"\s+", "", text)
