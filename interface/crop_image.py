@@ -1,4 +1,5 @@
 import tkinter as tk
+import tkinter.font as tkfont
 import shutil
 
 from PIL import Image, ImageTk
@@ -135,13 +136,31 @@ class ImageSelector:
         coord_label.pack()
 
         img_text = self.ocr.extract_text(cropped_img) or "[NO TEXT DETECTED]"
-        img_text_label = tk.Label(
+        # img_text_label = tk.Label(
+        #     preview,
+        #     text=img_text,
+        #     wraplength=400,
+        #     justify="left",
+        # )
+        # img_text_label.pack()
+        default_font = tkfont.nametofont("TkDefaultFont")
+        default_font.configure(size=14)
+        self.text_widget = tk.Text(
             preview,
-            text=img_text,
-            wraplength=400,
-            justify="left",
+            wrap="word",
+            width=60,
+            height=4,
+            font=default_font
         )
-        img_text_label.pack()
+        self.text_widget.insert("1.0", img_text)
+        self.text_widget.pack()
+
+        bold_btn = tk.Button(
+            preview,
+            text="Bold selection",
+            command=self.bold_selection
+        )
+        bold_btn.pack()
 
         preview_img = ImageTk.PhotoImage(cropped_img)
         img_label = tk.Label(preview, image=preview_img)
@@ -163,6 +182,19 @@ class ImageSelector:
 
         retry_btn.pack(side="right", padx=10, pady=10)
         preview.wait_window()
+
+    def bold_selection(self):
+        try:
+            start = self.text_widget.index("sel.first")
+            end = self.text_widget.index("sel.last")
+
+            selected_text = self.text_widget.get(start, end)
+
+            self.text_widget.delete(start, end)
+            self.text_widget.insert(start, f"<b>{selected_text}</b>")
+
+        except tk.TclError:
+            print("No text selected")
     
     def accept_crop(self, preview_window, cropped_img, img_text):
         output_folder = Path("output") / str(self.today)
@@ -183,7 +215,7 @@ class ImageSelector:
 
         self.csv.append_to_csv(
             output_folder,
-            img_text,
+            self.text_widget.get("1.0", "end-1c"),
             display_name,
         )
 
