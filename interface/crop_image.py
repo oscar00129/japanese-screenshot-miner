@@ -177,9 +177,9 @@ class ImageSelector:
         anki_destination = Path(self.config.anki_img_folder) / display_name
         shutil.copy2(display_destination, anki_destination)
 
-        cropped_name = f"{stem}_cropped{suffix}"
-        cropped_destination = output_folder / cropped_name
-        cropped_img.save(cropped_destination)
+        # cropped_name = f"{stem}_cropped{suffix}"
+        # cropped_destination = output_folder / cropped_name
+        # cropped_img.save(cropped_destination)
 
         self.csv.append_to_csv(
             output_folder,
