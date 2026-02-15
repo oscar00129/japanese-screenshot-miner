@@ -12,7 +12,7 @@ class Main:
         screenshots = Screenshots(config)
         images = screenshots.get_images_for_date(today)
 
-        selector = ImageSelector(images, today)
+        selector = ImageSelector(images, today, config)
         selector.run()
 
 if __name__=='__main__':

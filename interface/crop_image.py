@@ -5,14 +5,18 @@ from PIL import Image, ImageTk
 from pathlib import Path
 from datetime import date
 from ocr.ocr_processor import OCRProcessor
+from csv_processor.csv_processor import CSVProcessor
+from config.config import Config
 
 class ImageSelector:
-    def __init__(self, image_paths:list[Path], today:date):
+    def __init__(self, image_paths:list[Path], today:date, config:Config):
         self.image_paths = image_paths
         self.today = today
+        self.config = config
         self.current_index = 0
         self.root = tk.Tk()
         self.ocr = OCRProcessor()
+        self.csv = CSVProcessor(self.today)
 
         self.set_cursor_coordinates()
         self.set_sizes()
@@ -57,9 +61,9 @@ class ImageSelector:
     def load_current_image(self):    
         self.current_path = self.image_paths[self.current_index]
         self.original_image = Image.open(self.current_path)
-        display_image = self.resize_img(self.original_image)
+        self.display_image = self.resize_img(self.original_image)
 
-        self.tk_image = ImageTk.PhotoImage(display_image)
+        self.tk_image = ImageTk.PhotoImage(self.display_image)
         self.canvas.create_image(0, 0, anchor="nw", image=self.tk_image)
     
     def next_image(self):
@@ -164,18 +168,24 @@ class ImageSelector:
         output_folder = Path("output") / str(self.today)
         output_folder.mkdir(parents=True, exist_ok=True)
 
-        original_destination = output_folder / self.current_path.name
-
-        if not original_destination.exists():
-            shutil.copy2(self.current_path, original_destination)
-
         stem = self.current_path.stem
         suffix = self.current_path.suffix
 
+        display_name = f"{stem}_display{suffix}"
+        display_destination = output_folder / display_name
+        self.display_image.save(display_destination)
+        anki_destination = Path(self.config.anki_img_folder) / display_name
+        shutil.copy2(display_destination, anki_destination)
+
         cropped_name = f"{stem}_cropped{suffix}"
         cropped_destination = output_folder / cropped_name
-
         cropped_img.save(cropped_destination)
+
+        self.csv.append_to_csv(
+            output_folder,
+            img_text,
+            display_name,
+        )
 
         preview_window.destroy()
         self.next_image()
