@@ -13,7 +13,7 @@ class Config:
                 config = tomllib.load(f)
                 self.screnshot_folder_names = config.get('screenshot_folders', [])
                 self.screnshot_folders = [Path(folder_name) for folder_name in self.screnshot_folder_names]
-                self.anki_img_folder = config.get('anki_img_folder', '')
+                self.anki_img_folder = Path(config.get('anki_img_folder', ''))
 
         except FileNotFoundError:
             print("Config file not found. Generating...")
