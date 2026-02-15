@@ -8,13 +8,17 @@ class OCRProcessor:
         self.lang = lang
 
     def extract_text(self, image:Image) -> str:
-        img = self.apply_grayscale(image)
-        return self.format_text(
-            pytesseract.image_to_string(
-                img,
-                lang=self.lang
+        try:
+            img = self.apply_grayscale(image)
+            return self.format_text(
+                pytesseract.image_to_string(
+                    img,
+                    lang=self.lang,
+                    config="--psm 6",
+                )
             )
-        )
+        except pytesseract.TesseractNotFoundError:
+            return "[TESSERACT NOT INSTALLED]"
     
     def apply_grayscale(self, image) -> Image:
         return ImageOps.grayscale(image)
