@@ -130,8 +130,13 @@ class ImageSelector:
         coord_label = tk.Label(preview, text=f"Coords: {coords}")
         coord_label.pack()
 
-        img_text = self.ocr.extract_text(cropped_img) or "NO TEXT DETECTED"
-        img_text_label = tk.Label(preview, text=img_text)
+        img_text = self.ocr.extract_text(cropped_img) or "[NO TEXT DETECTED]"
+        img_text_label = tk.Label(
+            preview,
+            text=img_text,
+            wraplength=400,
+            justify="left",
+        )
         img_text_label.pack()
 
         preview_img = ImageTk.PhotoImage(cropped_img)
@@ -142,7 +147,7 @@ class ImageSelector:
         accept_btn = tk.Button(
             preview,
             text="Accept",
-            command=lambda: self.accept_crop(preview, cropped_img)
+            command=lambda: self.accept_crop(preview, cropped_img, img_text)
         )
         accept_btn.pack(side="left", padx=10, pady=10)
 
@@ -155,7 +160,7 @@ class ImageSelector:
         retry_btn.pack(side="right", padx=10, pady=10)
         preview.wait_window()
     
-    def accept_crop(self, preview_window, cropped_img):
+    def accept_crop(self, preview_window, cropped_img, img_text):
         output_folder = Path("output") / str(self.today)
         output_folder.mkdir(parents=True, exist_ok=True)
 
