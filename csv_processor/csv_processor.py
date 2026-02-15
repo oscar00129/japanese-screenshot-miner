@@ -13,7 +13,7 @@ class CSVProcessor:
             writer = csv.writer(file)
 
             writer.writerow([
-                f'{text}\n<img src="{image_name}">',
+                f'{text}<br><img src="{image_name}">',
                 "",
                 ""
             ])
