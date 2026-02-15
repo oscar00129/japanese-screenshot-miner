@@ -1,8 +1,10 @@
 import tkinter as tk
 import shutil
+
 from PIL import Image, ImageTk
 from pathlib import Path
 from datetime import date
+from ocr.ocr_processor import OCRProcessor
 
 class ImageSelector:
     def __init__(self, image_paths:list[Path], today:date):
@@ -10,6 +12,7 @@ class ImageSelector:
         self.today = today
         self.current_index = 0
         self.root = tk.Tk()
+        self.ocr = OCRProcessor()
 
         self.set_cursor_coordinates()
         self.set_sizes()
@@ -115,10 +118,6 @@ class ImageSelector:
             (real_x1, real_y1, real_x2, real_y2)
         )
 
-        print("Selección:",
-              self.start_x, self.start_y,
-              event.x, event.y)
-
         self.show_preview(cropped, (real_x1, real_y1, real_x2, real_y2))
     
     def show_preview(self, cropped_img:Image, coords:tuple):
@@ -130,6 +129,10 @@ class ImageSelector:
 
         coord_label = tk.Label(preview, text=f"Coords: {coords}")
         coord_label.pack()
+
+        img_text = self.ocr.extract_text(cropped_img) or "NO TEXT DETECTED"
+        img_text_label = tk.Label(preview, text=img_text)
+        img_text_label.pack()
 
         preview_img = ImageTk.PhotoImage(cropped_img)
         img_label = tk.Label(preview, image=preview_img)
