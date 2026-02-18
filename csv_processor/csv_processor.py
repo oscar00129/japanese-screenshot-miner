@@ -6,14 +6,14 @@ class CSVProcessor:
     def __init__(self, today:date):
         self.today = today
 
-    def append_to_csv(self, output_folder: Path, text: str, image_name: str):
+    def append_to_csv(self, output_folder: Path, text: str, image_name: str, audio_filename:str):
         csv_path = output_folder / f"{self.today}.csv"
 
         with open(csv_path, mode="a", newline="", encoding="utf-8") as file:
             writer = csv.writer(file)
 
             writer.writerow([
-                f'{text}<br><img src="{image_name}">',
+                f'{text}<br>[sound:{audio_filename}]<br><img src="{image_name}">',
                 "",
                 ""
             ])

@@ -1,12 +1,14 @@
 import tkinter as tk
 import tkinter.font as tkfont
-import shutil
+import shutil, sys
 
 from PIL import Image, ImageTk
+from tkinter import messagebox
 from pathlib import Path
 from datetime import date
 from ocr.ocr_processor import OCRProcessor
 from csv_processor.csv_processor import CSVProcessor
+from tts_processor.tts_processor import TTSProcessor
 from config.config import Config
 
 class ImageSelector:
@@ -18,6 +20,7 @@ class ImageSelector:
         self.root = tk.Tk()
         self.ocr = OCRProcessor()
         self.csv = CSVProcessor(self.today)
+        self.tts = TTSProcessor()
 
         self.set_cursor_coordinates()
         self.set_sizes()
@@ -59,8 +62,13 @@ class ImageSelector:
         )
         self.skip_button.pack()
     
-    def load_current_image(self):    
-        self.current_path = self.image_paths[self.current_index]
+    def load_current_image(self):
+        try:
+            self.current_path = self.image_paths[self.current_index]
+        except IndexError:
+            messagebox.showerror("Error", "No more screenshots!")
+            self.root.destroy()
+            sys.exit(1)
         self.original_image = Image.open(self.current_path)
         self.display_image = self.resize_img(self.original_image)
 
@@ -213,10 +221,15 @@ class ImageSelector:
         # cropped_destination = output_folder / cropped_name
         # cropped_img.save(cropped_destination)
 
+        audio_filename = f"{stem}_audio.mp3"
+        audio_path = Path(self.config.anki_img_folder) / audio_filename
+        self.tts.generate_audio_sync(self.text_widget.get("1.0", "end-1c"), audio_path)
+
         self.csv.append_to_csv(
             output_folder,
             self.text_widget.get("1.0", "end-1c"),
             display_name,
+            audio_filename,
         )
 
         preview_window.destroy()
